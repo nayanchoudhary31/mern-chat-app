@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const UserModel = require("../models/UserModel");
 const generateToken = require("../config/generateToken");
+require("dotenv").config();
 const registerUser = asyncHandler(async (req, resp) => {
   const { name, email, password, pic } = req.body;
 
@@ -15,7 +16,7 @@ const registerUser = asyncHandler(async (req, resp) => {
     throw new Error("User already exists");
   }
 
-  const newUser = await UserModel.create({
+  const user = await UserModel.create({
     name,
     email,
     password,
