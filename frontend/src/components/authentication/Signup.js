@@ -6,6 +6,7 @@ import {
   InputGroup,
   InputRightElement,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 
@@ -16,8 +17,56 @@ const Signup = () => {
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassoword] = useState();
   const [pic, setPic] = useState();
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
   const handleClickBtn = () => setShow(!show);
-  const postDetails = () => {};
+  const postDetails = (pic) => {
+    setLoading(true);
+    if (pic === undefined) {
+      toast({
+        title: "Please select an Image",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (pic.type === "image/jpeg" || pic.type === "image/png") {
+      const data = new FormData();
+      data.append("file", pic);
+      data.append("upload_preset", "mern-chat-app");
+      data.append("cloud_name", "iamnayan31");
+
+      fetch("https://api.cloudinary.com/v1_1/iamnayan31/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((resp) => {
+          resp.json();
+        })
+        .then((data) => {
+          console.log(data);
+          setPic(data.url.toString());
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    } else {
+      toast({
+        title: "Please select an Image",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+  };
   const submitHandler = () => {};
 
   return (
@@ -91,6 +140,7 @@ const Signup = () => {
         width="100%"
         style={{ marginTop: 15 }}
         onClick={submitHandler}
+        isLoading={loading}
       >
         Sign Up
       </Button>
