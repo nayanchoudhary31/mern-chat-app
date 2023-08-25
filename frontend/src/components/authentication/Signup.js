@@ -9,7 +9,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-
+import axios from "axios";
 const Signup = () => {
   const [show, setShow] = useState(false);
   const [name, setName] = useState();
@@ -20,9 +20,9 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const handleClickBtn = () => setShow(!show);
-  const postDetails = (pic) => {
+  const postDetails = (pics) => {
     setLoading(true);
-    if (pic === undefined) {
+    if (pics === undefined) {
       toast({
         title: "Please select an Image",
         status: "warning",
@@ -33,26 +33,27 @@ const Signup = () => {
       return;
     }
 
-    if (pic.type === "image/jpeg" || pic.type === "image/png") {
+    if (pics.type === "image/jpeg" || pics.type === "image/png") {
       const data = new FormData();
-      data.append("file", pic);
+      data.append("file", pics);
       data.append("upload_preset", "mern-chat-app");
       data.append("cloud_name", "iamnayan31");
-
-      fetch("https://api.cloudinary.com/v1_1/iamnayan31/image/upload", {
-        method: "post",
-        body: data,
-      })
-        .then((resp) => {
-          resp.json();
-        })
-        .then((data) => {
-          console.log(data);
-          setPic(data.url.toString());
+      axios
+        .post("https://api.cloudinary.com/v1_1/iamnayan31/image/upload", data)
+        .then((response) => {
+          console.log("Cloudinary response:", response);
+          setPic(response.data.url.toString());
           setLoading(false);
+          toast({
+            title: "Image uploaded successfully!",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((error) => {
+          console.log("Cloudinary error:", error);
           setLoading(false);
         });
     } else {
